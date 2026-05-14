@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Sweet Home — Family Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF6F0;
+    --warm-white: #FFFDF9;
+    --sage: #7A9E7E;
+    --sage-light: #A8C5AC;
+    --sage-dark: #4E6E52;
+    --terracotta: #C4704A;
+    --terracotta-light: #E8A882;
+    --gold: #D4A853;
+    --gold-light: #F0D090;
+    --dusty-rose: #C4849A;
+    --dusty-blue: #7A9BB5;
+    --dusty-blue-light: #B8D0E2;
+    --charcoal: #2C2C2C;
+    --warm-gray: #6B6560;
+    --border: rgba(44,44,44,0.1);
+    --shadow: 0 4px 24px rgba(44,44,44,0.08);
+    --shadow-lg: 0 12px 48px rgba(44,44,44,0.14);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--charcoal);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(circle at 20% 10%, rgba(122,158,126,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(196,112,74,0.06) 0%, transparent 50%);
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: var(--sage-dark);
+    color: var(--cream);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: -20px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+  }
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  header .subtitle {
+    font-size: 0.95rem;
+    opacity: 0.75;
+    margin-top: 0.4rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .family-tags {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-top: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .family-tag {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    gap: 0;
+    background: var(--warm-white);
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+    padding: 0 1rem;
+  }
+  nav button {
+    flex-shrink: 0;
+    padding: 1rem 1.4rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--warm-gray);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  nav button.active {
+    color: var(--sage-dark);
+    border-bottom-color: var(--sage-dark);
+  }
+  nav button:hover:not(.active) {
+    color: var(--charcoal);
+    background: rgba(122,158,126,0.05);
+  }
+
+  /* ─── MAIN CONTENT ─── */
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.35s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTION HEADERS ─── */
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--sage-dark);
+    margin-bottom: 0.3rem;
+  }
+  .section-desc {
+    color: var(--warm-gray);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    font-weight: 300;
+  }
+
+  /* ─── PERSON CARDS ─── */
+  .person-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .person-card {
+    background: var(--warm-white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .person-header {
+    padding: 1.2rem 1.5rem 1rem;
+    color: white;
+  }
+  .person-header.mom { background: linear-gradient(135deg, var(--dusty-rose), #A05E78); }
+  .person-header.dad { background: linear-gradient(135deg, var(--dusty-blue), #5A7A98); }
+  .person-header.son { background: linear-gradient(135deg, var(--terracotta), #A04830); }
+  .person-header.daughter { background: linear-gradient(135deg, var(--gold), #B88030); }
+
+  .person-header .emoji { font-size: 2rem; display: block; margin-bottom: 0.3rem; }
+  .person-header h3 { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 700; }
+  .person-header .role { font-size: 0.75rem; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .chore-list { padding: 1rem 1.5rem 1.4rem; }
+  .chore-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  .chore-item:last-child { border-bottom: none; }
+  .chore-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .mom .chore-dot { background: var(--dusty-rose); }
+  .dad .chore-dot { background: var(--dusty-blue); }
+  .son .chore-dot { background: var(--terracotta); }
+  .daughter .chore-dot { background: var(--gold); }
+
+  .chore-time {
+    font-size: 0.7rem;
+    color: var(--warm-gray);
+    background: var(--cream);
+    border-radius: 100px;
+    padding: 0.1rem 0.5rem;
+    white-space: nowrap;
+    margin-left: auto;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 1px;
+  }
+
+  /* ─── DAILY SCHEDULE ─── */
+  .day-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.8rem;
+    flex-wrap: wrap;
+  }
+  .day-btn {
+    padding: 0.45rem 1rem;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: var(--warm-white);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--warm-gray);
+    transition: all 0.2s;
+  }
+  .day-btn.active {
+    background: var(--sage-dark);
+    border-color: var(--sage-dark);
+    color: white;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--sage-light), transparent);
+    border-radius: 2px;
+  }
+  .time-block {
+    position: relative;
+    margin-bottom: 1.2rem;
+    background: var(--warm-white);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-left: 1.5rem;
+  }
+  .time-block::before {
+    content: '';
+    position: absolute;
+    left: -2.2rem;
+    top: 1.1rem;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--sage);
+    border: 2px solid var(--cream);
+    box-shadow: 0 0 0 2px var(--sage-light);
+  }
+  .time-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sage-dark);
+    margin-bottom: 0.4rem;
+  }
+  .time-block h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .time-block p {
+    font-size: 0.83rem;
+    color: var(--warm-gray);
+    line-height: 1.5;
+  }
+  .who-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; }
+  .who-tag {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+  .who-tag.mom { background: rgba(196,132,154,0.15); color: #8A4060; }
+  .who-tag.dad { background: rgba(122,155,181,0.15); color: #3A6888; }
+  .who-tag.son { background: rgba(196,112,74,0.15); color: #8A4020; }
+  .who-tag.daughter { background: rgba(212,168,83,0.15); color: #8A6010; }
+
+  /* ─── MEAL PLAN ─── */
+  .meal-week {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.2rem;
+  }
+  .meal-day-card {
+    background: var(--warm-white);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .meal-day-header {
+    background: var(--sage-dark);
+    color: white;
+    padding: 0.8rem 1.2rem;
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .meal-day-header span { font-size: 0.72rem; font-weight: 400; opacity: 0.8; }
+  .meal-slots { padding: 0.8rem 1.2rem 1rem; }
+  .meal-slot {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .meal-slot:last-child { border-bottom: none; }
+  .meal-type {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--warm-gray);
+    margin-bottom: 0.15rem;
+  }
+  .meal-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--charcoal);
+  }
+  .meal-note {
+    font-size: 0.74rem;
+    color: var(--warm-gray);
+    margin-top: 0.1rem;
+  }
+  .meal-maker {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 100px;
+    margin-top: 0.2rem;
+    font-weight: 500;
+  }
+  .maker-kids { background: rgba(196,112,74,0.12); color: #8A4020; }
+  .maker-parent { background: rgba(122,155,181,0.15); color: #3A6888; }
+  .maker-prep { background: rgba(122,158,126,0.15); color: #3A6040; }
+
+  /* ─── GROCERY ─── */
+  .grocery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.2rem;
+  }
+  .grocery-cat {
+    background: var(--warm-white);
+    border-radius: 16px;
+    padding: 1.2rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .grocery-cat h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .grocery-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0;
+    font-size: 0.84rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .grocery-item:last-child { border-bottom: none; }
+  .grocery-item input[type=checkbox] {
+    width: 15px; height: 15px;
+    accent-color: var(--sage-dark);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .grocery-item label { cursor: pointer; flex: 1; }
+  .grocery-item.checked label { text-decoration: line-through; opacity: 0.45; }
+
+  /* ─── RULES ─── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.4rem;
+  }
+  .rule-card {
+    background: var(--warm-white);
+    border-radius: 18px;
+    padding: 1.4rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .rule-card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .rule-item {
+    display: flex;
+    gap: 0.7rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--warm-gray);
+  }
+  .rule-item:last-child { border-bottom: none; }
+  .rule-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    color: var(--sage-dark);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  /* ─── REWARD SYSTEM ─── */
+  .reward-banner {
+    background: linear-gradient(135deg, var(--sage-dark), var(--sage));
+    border-radius: 20px;
+    padding: 1.8rem 2rem;
+    color: white;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .reward-banner::after {
+    content: '⭐';
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 4rem;
+    opacity: 0.15;
+  }
+  .reward-banner h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .reward-banner p { font-size: 0.88rem; opacity: 0.85; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    main { padding: 1.5rem 1rem 4rem; }
+    .person-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ─── PRINT ─── */
+  .print-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    margin-bottom: 1.5rem;
+    background: var(--sage-dark);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    padding: 0.55rem 1.2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .print-btn:hover { background: var(--sage); }
+
+  /* ─── MONTHLY EVENTS ─── */
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .cal-month-label {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    color: var(--charcoal);
+    min-width: 200px;
+    text-align: center;
+  }
+  .cal-arrow {
+    background: var(--warm-white);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--sage-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .cal-arrow:hover { background: var(--sage-light); color: var(--warm-white); }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 2rem;
+  }
+  .cal-header {
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--warm-gray);
+    padding: 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .cal-cell {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-height: 80px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .cal-cell.empty { background: transparent; border-color: transparent; }
+  .cal-cell.today { border-color: var(--sage); background: #F2F8F3; }
+  .cal-day-num {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-bottom: 2px;
+  }
+  .cal-cell.today .cal-day-num { color: var(--sage-dark); }
+  .cal-chip {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 2px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cal-chip.son { background: var(--terracotta-light); color: var(--terracotta); }
+  .cal-chip.mom { background: #F2D6DE; color: var(--dusty-rose); }
+  .cal-chip.dad { background: var(--dusty-blue-light); color: #4A6E88; }
+  .event-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .legend-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+  }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-card.son .legend-dot { background: var(--terracotta); }
+  .legend-card.mom .legend-dot { background: var(--dusty-rose); }
+  .legend-card.dad .legend-dot { background: var(--dusty-blue); }
+  .legend-card strong {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--charcoal);
+    display: block;
+  }
+  .legend-card p {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--warm-gray);
+    margin: 2px 0 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏡 Home Sweet Home</h1>
+  <p class="subtitle">Family Command Center</p>
+  <div class="family-tags">
+    <span class="family-tag">👩 Mom</span>
+    <span class="family-tag">👨 Dad</span>
+    <span class="family-tag">👦 Karam · 11</span>
+    <span class="family-tag">👧 Naya · 4</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('chores')">📋 Chore Charts</button>
+  <button onclick="showSection('schedule')">🕐 Daily Schedule</button>
+  <button onclick="showSection('meals')">🍽️ Meal Plan</button>
+  <button onclick="showSection('grocery')">🛒 Grocery List</button>
+  <button onclick="showSection('rules')">📜 House Rules</button>
+  <button onclick="showSection('events')">📅 Events</button>
+</nav>
+
+<main>
+
+  <!-- ══════════════════ CHORE CHARTS ══════════════════ -->
+  <section id="chores" class="section active">
+    <h2 class="section-title">Chore Charts</h2>
+    <p class="section-desc">Every person has a role. When we all chip in, home runs beautifully.</p>
+
+    <div class="person-grid">
+
+      <!-- MOM -->
+      <div class="person-card">
+        <div class="person-header mom">
+          <span class="emoji">👩</span>
+          <h3>Mom</h3>
+          <div class="role">Home Manager · Keeper of Order</div>
+        </div>
+        <div class="chore-list">
+          <div class="chore-item"><div class="chore-dot"></div><span>Plan weekly meals & grocery list</span><span class="chore-time">30 min/wk</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Prep weekday lunches & school snacks</span><span class="chore-time">20 min/day</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Wipe kitchen counters after meals</span><span class="chore-time">5 min</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Laundry — wash, dry & fold family clothes</span><span class="chore-time">Mon/Thu</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Manage kids' school paperwork & calendar</span><span class="chore-time">15 min/wk</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Wipe bathroom sink & mirror (master)</span><span class="chore-time">Daily</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Grocery shopping</span><span class="chore-time">Weekly</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Dust living room surfaces</span><span class="chore-time">Tue/Fri</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Deep clean bathrooms</span><span class="chore-time">Saturday</span></div>
+        </div>
+      </div>
+
+      <!-- DAD -->
+      <div class="person-card">
+        <div class="person-header dad">
+          <span class="emoji">👨</span>
+          <h3>Dad</h3>
+          <div class="role">Muscle & Maintenance · Weekend Warrior</div>
+        </div>
+        <div class="chore-list">
+          <div class="chore-item"><div class="chore-dot"></div><span>Empty all trash cans & take bins to curb</span><span class="chore-time">Sun/Wed</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Vacuum all carpets & rugs</span><span class="chore-time">Wed/Sat</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Mow lawn & yard tidying</span><span class="chore-time">Saturday</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Sweep & mop kitchen/entry floors</span><span class="chore-time">Tue/Fri</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Cook dinner 3 nights/week</span><span class="chore-time">Mon, Wed, Fri</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Wash & put away dinner dishes</span><span class="chore-time">When cooking</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Home maintenance & repairs</span><span class="chore-time">As needed</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Clean grill & outdoor areas</span><span class="chore-time">Monthly</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Wipe down stovetop after cooking</span><span class="chore-time">After each use</span></div>
+        </div>
+      </div>
+
+      <!-- SON (11yr) -->
+      <div class="person-card">
+        <div class="person-header son">
+          <span class="emoji">👦</span>
+          <h3>Karam · 11 yrs</h3>
+          <div class="role">Junior Helper · Learning Independence</div>
+        </div>
+        <div class="chore-list">
+          <div class="chore-item"><div class="chore-dot"></div><span>Make his own bed every morning</span><span class="chore-time">5 min/day</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Clear & wipe the dinner table + chairs</span><span class="chore-time">10 min/day</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Load dishwasher after dinner, run it</span><span class="chore-time">10 min/day</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Unload dishwasher & put away dishes</span><span class="chore-time">10 min/day</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Feed & water family pet (if applicable)</span><span class="chore-time">Daily</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Take out kitchen trash when full</span><span class="chore-time">As needed</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Tidy his bedroom, put clothes in hamper</span><span class="chore-time">Daily</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Sweep back patio / entry steps</span><span class="chore-time">Sat</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Help Naya tidy her toys before bed</span><span class="chore-time">10 min/day</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Wipe kids' bathroom sink & mirror</span><span class="chore-time">Fri</span></div>
+        </div>
+      </div>
+
+      <!-- DAUGHTER (4yr) -->
+      <div class="person-card">
+        <div class="person-header daughter">
+          <span class="emoji">👧</span>
+          <h3>Naya · 4 yrs</h3>
+          <div class="role">Tiny Helper · Big Heart</div>
+        </div>
+        <div class="chore-list">
+          <div class="chore-item"><div class="chore-dot"></div><span>Put stuffed animals & books away each night</span><span class="chore-time">5 min</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Place dirty clothes in her hamper</span><span class="chore-time">Daily</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Help set the table — napkins & cups</span><span class="chore-time">5 min/day</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Carry her dishes to the sink after meals</span><span class="chore-time">Daily</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Help sort laundry by color (with Mom)</span><span class="chore-time">Laundry days</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Water one easy plant (with help)</span><span class="chore-time">Weekly</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Wipe her placemat with a cloth</span><span class="chore-time">After meals</span></div>
+          <div class="chore-item"><div class="chore-dot"></div><span>Help put groceries in low cabinets</span><span class="chore-time">Shopping day</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Weekly Rotation Note -->
+    <div class="reward-banner">
+      <h3>⭐ Star Chart Reward System</h3>
+      <p>Karam earns 1 star per completed chore. 20 stars = a chosen activity or screen-time bonus. Naya earns stickers — 10 stickers = a special treat or trip to the park. Mom & Dad earn date night! Check off chores together each evening at the Family Check-In (8pm).</p>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════ DAILY SCHEDULE ══════════════════ -->
+  <section id="schedule" class="section">
+    <h2 class="section-title">Daily Schedule</h2>
+    <p class="section-desc">A rhythm for everyone — no reminders needed.</p>
+
+    <div class="day-selector">
+      <button class="day-btn active" onclick="showDay('weekday', this)">Mon–Fri</button>
+      <button class="day-btn" onclick="showDay('saturday', this)">Saturday</button>
+      <button class="day-btn" onclick="showDay('sunday', this)">Sunday</button>
+    </div>
+
+    <!-- WEEKDAY -->
+    <div id="weekday" class="timeline">
+      <div class="time-block">
+        <div class="time-label">6:00 – 6:30 am</div>
+        <h4>🌅 Morning Wake-Up</h4>
+        <p>Mom & Dad rise. Dad starts coffee & breakfast prep. Mom packs school bags / lunches if not prepped the night before.</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">6:30 am</div>
+        <h4>⏰ Karam Wakes Up</h4>
+        <p>Gets dressed, makes his bed, brushes teeth — all before coming to breakfast. Backpack ready the night before.</p>
+        <div class="who-tags"><span class="who-tag son">Karam</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">7:00 am</div>
+        <h4>🍳 Breakfast Together</h4>
+        <p>Family breakfast. Naya helps set cups and napkins. Karam pours his own cereal/toast. Cleanup: Karam clears table, everyone puts dishes in sink.</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span><span class="who-tag son">Karam</span><span class="who-tag daughter">Naya</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">7:45 am</div>
+        <h4>🚌 Karam Off to School</h4>
+        <p>Shoes on, backpack, a hug. Mom or Dad does school drop-off.</p>
+        <div class="who-tags"><span class="who-tag son">Karam</span><span class="who-tag mom">Mom</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">8:00 – 8:30 am</div>
+        <h4>🧹 Morning Home Reset</h4>
+        <p>Quick tidy: dishes in dishwasher, wipe counters, make adults' beds, Naya's room tidied. Naya wipes her placemat. 30-min sweep keeps the house all day.</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag daughter">Naya</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">12:00 pm</div>
+        <h4>🥪 Naya's Lunch</h4>
+        <p>Mom serves Naya a prepped lunch. Naya carries her dishes to sink after. Mom wipes table.</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag daughter">Naya</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">3:30 pm</div>
+        <h4>🏫 Karam Home from School</h4>
+        <p>Shoes off at door, backpack hung, homework folder on kitchen table. Snack from snack basket (pre-stocked). 15-min outdoor play or quiet time before homework.</p>
+        <div class="who-tags"><span class="who-tag son">Karam</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">4:00 – 5:00 pm</div>
+        <h4>📚 Homework & Reading</h4>
+        <p>Karam does homework at kitchen table. Mom nearby for questions. Naya has quiet activity (coloring, puzzles, audiobooks).</p>
+        <div class="who-tags"><span class="who-tag son">Karam</span><span class="who-tag daughter">Naya</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">5:30 pm</div>
+        <h4>🍳 Dinner Prep Begins</h4>
+        <p>Whoever is cooking starts. Naya helps set napkins & cups. Karam clears any homework off the table.</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span><span class="who-tag daughter">Naya</span><span class="who-tag son">Karam</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">6:30 pm</div>
+        <h4>🍽️ Family Dinner</h4>
+        <p>Everyone at the table — no screens. Share a "rose & thorn" of the day. Dinner: 20–30 min.</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span><span class="who-tag son">Karam</span><span class="who-tag daughter">Naya</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">7:00 pm</div>
+        <h4>🧺 Kitchen Cleanup</h4>
+        <p>Karam: clears table, loads dishwasher, runs it. Dad (or cook): wipes stovetop & counters. Naya: wipes her placemat, carries dishes to sink. Done in 15 min.</p>
+        <div class="who-tags"><span class="who-tag son">Karam</span><span class="who-tag dad">Dad</span><span class="who-tag daughter">Naya</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">7:15 pm</div>
+        <h4>🛁 Naya's Bath & Wind-Down</h4>
+        <p>Mom or Dad bathes Naya. Naya picks up her bedroom toys. Karam can have 30 min free time (no screens on school nights).</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag daughter">Naya</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">7:45 pm</div>
+        <h4>📖 Naya Bedtime</h4>
+        <p>Naya in bed with 1 story. Lights out by 8pm.</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span><span class="who-tag daughter">Naya</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">8:00 pm</div>
+        <h4>✅ Family Check-In + Karam's Bedtime Prep</h4>
+        <p>Karam marks star chart, packs tomorrow's backpack, picks outfit, brushes teeth. 20 min reading in bed. Lights out 8:45pm.</p>
+        <div class="who-tags"><span class="who-tag son">Karam</span><span class="who-tag mom">Mom</span></div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">9:00 pm</div>
+        <h4>🌙 Mom & Dad Evening</h4>
+        <p>Prep next day's lunches (10 min), do a final 10-min tidy, then relax. House is ready for tomorrow.</p>
+        <div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span></div>
+      </div>
+    </div>
+
+    <!-- SATURDAY -->
+    <div id="saturday" class="timeline" style="display:none">
+      <div class="time-block"><div class="time-label">8:00 am</div><h4>🥞 Relaxed Breakfast</h4><p>Dad makes a bigger weekend breakfast — pancakes, eggs, or French toast. Family eats together without rushing.</p><div class="who-tags"><span class="who-tag dad">Dad</span><span class="who-tag daughter">Naya</span></div></div>
+      <div class="time-block"><div class="time-label">9:00 am</div><h4>🧹 Saturday Deep Clean — All Hands!</h4><p>Dad vacuums all rooms. Mom deep-cleans bathrooms. Karam sweeps back patio & wipes kids' bathroom mirror. Naya dusts her bookshelf with a feather duster. 1 hour, everyone done together.</p><div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span><span class="who-tag son">Karam</span><span class="who-tag daughter">Naya</span></div></div>
+      <div class="time-block"><div class="time-label">10:30 am</div><h4>🌿 Yard & Outdoor Time</h4><p>Dad mows & trims. Karam sweeps driveway or helps with yard. Naya plays outside. Mom grocery shops or has personal time.</p><div class="who-tags"><span class="who-tag dad">Dad</span><span class="who-tag son">Karam</span></div></div>
+      <div class="time-block"><div class="time-label">12:30 pm</div><h4>🥗 Lunch</h4><p>Karam makes his own Saturday lunch from the "Karam's Easy Lunch" list. Naya has a prepped option from the fridge.</p><div class="who-tags"><span class="who-tag son">Karam</span><span class="who-tag daughter">Naya</span></div></div>
+      <div class="time-block"><div class="time-label">2:00 pm</div><h4>🎉 Family Activity Time</h4><p>Family outing, park, movie, game time — chosen together on Sunday evenings for the following week.</p><div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span><span class="who-tag son">Karam</span><span class="who-tag daughter">Naya</span></div></div>
+      <div class="time-block"><div class="time-label">6:00 pm</div><h4>🍕 Fun Saturday Dinner</h4><p>Pizza night, taco bar, or BBQ. Kids' choice rotates. Karam helps assemble or prep a simple side.</p><div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span><span class="who-tag son">Karam</span></div></div>
+    </div>
+
+    <!-- SUNDAY -->
+    <div id="sunday" class="timeline" style="display:none">
+      <div class="time-block"><div class="time-label">9:00 am</div><h4>☕ Slow Morning</h4><p>Family sleeps in (if possible). Brunch together. Karam makes his own breakfast (cereal, toast, fruit — from his list).</p><div class="who-tags"><span class="who-tag son">Karam</span></div></div>
+      <div class="time-block"><div class="time-label">11:00 am</div><h4>📋 Meal Prep Sunday</h4><p>Mom preps weekday lunches, overnight oats, cut veggies & snack packs. Karam helps with simple prep (washing fruit, portioning snacks). Takes 1–1.5 hrs, makes the whole week easier.</p><div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag son">Karam</span></div></div>
+      <div class="time-block"><div class="time-label">2:00 pm</div><h4>🧺 Laundry Fold & Put Away</h4><p>Dad & Karam fold and put away laundry together. Naya matches socks.</p><div class="who-tags"><span class="who-tag dad">Dad</span><span class="who-tag son">Karam</span><span class="who-tag daughter">Naya</span></div></div>
+      <div class="time-block"><div class="time-label">5:00 pm</div><h4>📅 Sunday Family Meeting (15 min)</h4><p>Review the week ahead: activities, appointments, who's cooking. Kids vote on Saturday's family activity. Check the star chart together.</p><div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span><span class="who-tag son">Karam</span><span class="who-tag daughter">Naya</span></div></div>
+      <div class="time-block"><div class="time-label">6:00 pm</div><h4>🍲 Sunday Supper</h4><p>Slow cooker meal or roast — something cozy. Mom or Dad cooks. Everyone sets the table together.</p><div class="who-tags"><span class="who-tag mom">Mom</span><span class="who-tag dad">Dad</span></div></div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════ MEAL PLAN ══════════════════ -->
+  <section id="meals" class="section">
+    <h2 class="section-title">Weekly Meal Plan</h2>
+    <p class="section-desc">Kid-friendly, parent-prepped options. Labels show who can make it. 🧒 Kids can do · 👨‍👩 Parent cooks · 🥡 Parent preps ahead</p>
+
+    <div class="meal-week">
+
+      <div class="meal-day-card">
+        <div class="meal-day-header">Monday <span>Fresh start week</span></div>
+        <div class="meal-slots">
+          <div class="meal-slot"><div class="meal-type">Breakfast</div><div class="meal-name">Overnight oats + banana</div><div class="meal-note">Karam pours oats from fridge, adds toppings</div><span class="meal-maker maker-kids">🧒 Karam solo</span></div>
+          <div class="meal-slot"><div class="meal-type">Lunch</div><div class="meal-name">Turkey roll-ups + apple slices + string cheese</div><div class="meal-note">Prepped Sun. Karam assembles his own</div><span class="meal-maker maker-prep">🥡 Sunday prep</span></div>
+          <div class="meal-slot"><div class="meal-type">Dinner</div><div class="meal-name">Sheet Pan Chicken + Roasted Veggies</div><div class="meal-note">Dad cooks · prep 10 min, cook 30 min</div><span class="meal-maker maker-parent">👨‍👩 Dad</span></div>
+        </div>
+      </div>
+
+      <div class="meal-day-card">
+        <div class="meal-day-header">Tuesday <span>Taco Tuesday!</span></div>
+        <div class="meal-slots">
+          <div class="meal-slot"><div class="meal-type">Breakfast</div><div class="meal-name">Whole wheat toast + peanut butter + sliced banana</div><div class="meal-note">Karam toasts & spreads himself</div><span class="meal-maker maker-kids">🧒 Karam solo</span></div>
+          <div class="meal-slot"><div class="meal-type">Lunch</div><div class="meal-name">PB&J + carrot sticks + yogurt</div><div class="meal-note">Karam makes his own sandwich</div><span class="meal-maker maker-kids">🧒 Karam solo</span></div>
+          <div class="meal-slot"><div class="meal-type">Dinner</div><div class="meal-name">Ground Beef Tacos + build-your-own bar</div><div class="meal-note">Mom cooks meat, kids assemble their own</div><span class="meal-maker maker-parent">👨‍👩 Mom</span></div>
+        </div>
+      </div>
+
+      <div class="meal-day-card">
+        <div class="meal-day-header">Wednesday <span>Midweek refuel</span></div>
+        <div class="meal-slots">
+          <div class="meal-slot"><div class="meal-type">Breakfast</div><div class="meal-name">Scrambled eggs + toast</div><div class="meal-note">Dad makes · Karam can try with supervision</div><span class="meal-maker maker-parent">👨‍👩 Dad</span></div>
+          <div class="meal-slot"><div class="meal-type">Lunch</div><div class="meal-name">Lunchbox bento: crackers, cheese, grapes, hummus & veggies</div><div class="meal-note">Prepped Sunday. Kids grab from fridge</div><span class="meal-maker maker-prep">🥡 Sunday prep</span></div>
+          <div class="meal-slot"><div class="meal-type">Dinner</div><div class="meal-name">Pasta with marinara + garlic bread + salad</div><div class="meal-note">Dad boils pasta, Mom makes salad · 20 min</div><span class="meal-maker maker-parent">👨‍👩 Dad</span></div>
+        </div>
+      </div>
+
+      <div class="meal-day-card">
+        <div class="meal-day-header">Thursday <span>Almost Friday!</span></div>
+        <div class="meal-slots">
+          <div class="meal-slot"><div class="meal-type">Breakfast</div><div class="meal-name">Smoothie (frozen fruit + yogurt + OJ)</div><div class="meal-note">Karam blends with parent supervision</div><span class="meal-maker maker-kids">🧒 Karam + supervision</span></div>
+          <div class="meal-slot"><div class="meal-type">Lunch</div><div class="meal-name">Quesadilla in the microwave</div><div class="meal-note">Karam makes solo! Tortilla + cheese, 90 sec</div><span class="meal-maker maker-kids">🧒 Karam solo</span></div>
+          <div class="meal-slot"><div class="meal-type">Dinner</div><div class="meal-name">Slow Cooker Soup + crusty bread</div><div class="meal-note">Mom preps in AM · ready by dinner</div><span class="meal-maker maker-prep">🥡 Slow cooker</span></div>
+        </div>
+      </div>
+
+      <div class="meal-day-card">
+        <div class="meal-day-header">Friday <span>Fun Friday</span></div>
+        <div class="meal-slots">
+          <div class="meal-slot"><div class="meal-type">Breakfast</div><div class="meal-name">Cereal of choice + milk + fruit</div><div class="meal-note">Both kids fully independent</div><span class="meal-maker maker-kids">🧒 Kids solo</span></div>
+          <div class="meal-slot"><div class="meal-type">Lunch</div><div class="meal-name">Leftovers Friday — use up the week</div><div class="meal-note">Karam heats his own in microwave</div><span class="meal-maker maker-kids">🧒 Karam solo</span></div>
+          <div class="meal-slot"><div class="meal-type">Dinner</div><div class="meal-name">Pizza Night — homemade or delivery</div><div class="meal-note">Dad's night. Karam helps top the pizza</div><span class="meal-maker maker-parent">👨‍👩 Dad + Karam</span></div>
+        </div>
+      </div>
+
+      <div class="meal-day-card">
+        <div class="meal-day-header">Saturday <span>Weekend treat</span></div>
+        <div class="meal-slots">
+          <div class="meal-slot"><div class="meal-type">Breakfast</div><div class="meal-name">Pancakes or French toast</div><div class="meal-note">Dad's specialty — kids set the table</div><span class="meal-maker maker-parent">👨‍👩 Dad</span></div>
+          <div class="meal-slot"><div class="meal-type">Lunch</div><div class="meal-name">Karam's Choice: Wrap, bowl, or sandwich</div><div class="meal-note">From the "Karam's Easy Lunches" poster</div><span class="meal-maker maker-kids">🧒 Karam solo</span></div>
+          <div class="meal-slot"><div class="meal-type">Dinner</div><div class="meal-name">BBQ / Taco Bar / Stir-Fry — Kids vote!</h4></div><div class="meal-note">Family cook together</div><span class="meal-maker maker-parent">👨‍👩 Together</span></div>
+        </div>
+      </div>
+
+      <div class="meal-day-card">
+        <div class="meal-day-header">Sunday <span>Cozy & slow</span></div>
+        <div class="meal-slots">
+          <div class="meal-slot"><div class="meal-type">Brunch</div><div class="meal-name">Egg muffins (prepped Sat) + fruit salad</div><div class="meal-note">Ready from fridge, microwave 60 sec</div><span class="meal-maker maker-prep">🥡 Prepped</span></div>
+          <div class="meal-slot"><div class="meal-type">Snack</div><div class="meal-name">Apples + peanut butter + popcorn</div><div class="meal-note">Karam pops microwave popcorn solo</div><span class="meal-maker maker-kids">🧒 Karam solo</span></div>
+          <div class="meal-slot"><div class="meal-type">Dinner</div><div class="meal-name">Sunday Roast Chicken + mashed potatoes + green beans</div><div class="meal-note">Mom's dinner. Karam mashes potatoes with supervision.</div><span class="meal-maker maker-parent">👨‍👩 Mom + Karam</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Karam's Easy Meals Box -->
+    <div style="margin-top:2rem; background: var(--warm-white); border-radius:20px; padding:1.5rem; border:2px solid rgba(196,112,74,0.25); box-shadow: var(--shadow);">
+      <h3 style="font-family:'Fraunces',serif; font-size:1.2rem; color:var(--terracotta); margin-bottom:0.8rem;">🧒 Karam's Solo Kitchen List — Things He Can Make 100% Independently</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:0.6rem;">
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🥣 Cereal + milk</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🍞 Toast + toppings (PB, jam, butter)</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🥪 Sandwiches & wraps</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🌮 Microwave quesadilla</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🍜 Cup noodles / instant mac</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🍌 Banana + peanut butter</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🍿 Microwave popcorn</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🥤 Smoothie (with blender ok)</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🍳 Scrambled eggs (stovetop supervised)</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🍎 Apple + cheese snack plate</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🥗 Simple salad (torn lettuce + dressing)</div>
+        <div style="font-size:0.84rem; padding:0.5rem; background:rgba(196,112,74,0.06); border-radius:10px;">🫙 Overnight oats from fridge</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════ GROCERY LIST ══════════════════ -->
+  <section id="grocery" class="section">
+    <h2 class="section-title">Weekly Grocery List</h2>
+    <p class="section-desc">Tap items to check them off as you shop. Based on this week's meal plan.</p>
+
+    <div class="grocery-grid" id="groceryGrid">
+
+      <div class="grocery-cat">
+        <h4>🥩 Proteins</h4>
+        <div class="grocery-item"><input type="checkbox" id="g1"><label for="g1">Boneless chicken breasts (2 lbs)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g2"><label for="g2">Ground beef (1.5 lbs)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g3"><label for="g3">Whole roasting chicken</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g4"><label for="g4">Deli turkey (for roll-ups)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g5"><label for="g5">Eggs (1 dozen)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g6"><label for="g6">String cheese / cheese sticks</label></div>
+      </div>
+
+      <div class="grocery-cat">
+        <h4>🥛 Dairy</h4>
+        <div class="grocery-item"><input type="checkbox" id="g7"><label for="g7">Milk (1 gallon)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g8"><label for="g8">Shredded cheddar (for tacos, quesadillas)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g9"><label for="g9">Greek yogurt (kids + smoothies)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g10"><label for="g10">Butter</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g11"><label for="g11">Cream cheese</label></div>
+      </div>
+
+      <div class="grocery-cat">
+        <h4>🥦 Produce</h4>
+        <div class="grocery-item"><input type="checkbox" id="g12"><label for="g12">Bananas</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g13"><label for="g13">Apples</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g14"><label for="g14">Grapes</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g15"><label for="g15">Baby carrots</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g16"><label for="g16">Broccoli / green beans</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g17"><label for="g17">Mixed salad greens</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g18"><label for="g18">Cherry tomatoes</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g19"><label for="g19">Potatoes (mashing)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g20"><label for="g20">Frozen mixed fruit (smoothies)</label></div>
+      </div>
+
+      <div class="grocery-cat">
+        <h4>🍞 Bread & Grains</h4>
+        <div class="grocery-item"><input type="checkbox" id="g21"><label for="g21">Whole wheat bread</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g22"><label for="g22">Flour tortillas (large)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g23"><label for="g23">Pasta (spaghetti or penne)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g24"><label for="g24">Rolled oats (overnight oats)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g25"><label for="g25">Crackers (bento boxes)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g26"><label for="g26">Garlic bread (frozen)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g27"><label for="g27">Pancake mix</label></div>
+      </div>
+
+      <div class="grocery-cat">
+        <h4>🥫 Pantry Staples</h4>
+        <div class="grocery-item"><input type="checkbox" id="g28"><label for="g28">Marinara sauce (jar)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g29"><label for="g29">Peanut butter</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g30"><label for="g30">Jam / Jelly</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g31"><label for="g31">Hummus</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g32"><label for="g32">Chicken broth (soup)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g33"><label for="g33">Taco seasoning packet</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g34"><label for="g34">Microwave popcorn bags</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g35"><label for="g35">Orange juice</label></div>
+      </div>
+
+      <div class="grocery-cat">
+        <h4>🧃 Kids' Snacks</h4>
+        <div class="grocery-item"><input type="checkbox" id="g36"><label for="g36">Granola bars (backpack snack)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g37"><label for="g37">Individual yogurt cups (Naya)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g38"><label for="g38">Applesauce pouches (Naya)</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g39"><label for="g39">Goldfish crackers</label></div>
+        <div class="grocery-item"><input type="checkbox" id="g40"><label for="g40">Fruit snacks / raisins</label></div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ══════════════════ HOUSE RULES ══════════════════ -->
+  <section id="rules" class="section">
+    <h2 class="section-title">House Rules & Standards</h2>
+    <p class="section-desc">The expectations that keep our home running peacefully — posted where everyone can see.</p>
+
+    <div class="rules-grid">
+
+      <div class="rule-card">
+        <h3>🧹 Cleanliness Standards</h3>
+        <div class="rule-item"><span class="rule-num">1.</span><span>If you make a mess, you clean it up — before leaving the area.</span></div>
+        <div class="rule-item"><span class="rule-num">2.</span><span>Dishes go in the sink or dishwasher immediately after eating — never left on the table.</span></div>
+        <div class="rule-item"><span class="rule-num">3.</span><span>Shoes OFF at the front door, always.</span></div>
+        <div class="rule-item"><span class="rule-num">4.</span><span>Clothes go in the hamper — not the floor.</span></div>
+        <div class="rule-item"><span class="rule-num">5.</span><span>Beds made every morning before breakfast.</span></div>
+        <div class="rule-item"><span class="rule-num">6.</span><span>Toys and belongings must be in bedrooms or their homes by bedtime.</span></div>
+      </div>
+
+      <div class="rule-card">
+        <h3>🍽️ Kitchen Rules</h3>
+        <div class="rule-item"><span class="rule-num">1.</span><span>Ask before eating anything outside scheduled meal/snack times.</span></div>
+        <div class="rule-item"><span class="rule-num">2.</span><span>Wipe the counter after you use it — even for just a snack.</span></div>
+        <div class="rule-item"><span class="rule-num">3.</span><span>Karam may use the microwave and toaster independently. Stovetop needs an adult present.</span></div>
+        <div class="rule-item"><span class="rule-num">4.</span><span>Put ingredients back where they belong after using them.</span></div>
+        <div class="rule-item"><span class="rule-num">5.</span><span>No drinks in the living room except water in a closed bottle.</span></div>
+      </div>
+
+      <div class="rule-card">
+        <h3>📱 Screen Time Rules</h3>
+        <div class="rule-item"><span class="rule-num">1.</span><span>No screens at the dinner table — ever. Family time is screen-free.</span></div>
+        <div class="rule-item"><span class="rule-num">2.</span><span>Karam: Homework & chores FIRST, screens after. School nights: 7–8pm only.</span></div>
+        <div class="rule-item"><span class="rule-num">3.</span><span>Naya: max 1 hr per day, age-appropriate content, in the living room.</span></div>
+        <div class="rule-item"><span class="rule-num">4.</span><span>All devices charge in the kitchen overnight — not in bedrooms.</span></div>
+        <div class="rule-item"><span class="rule-num">5.</span><span>Weekend bonus screen time is earned with completed star charts.</span></div>
+      </div>
+
+      <div class="rule-card">
+        <h3>🕐 Routines & Timing</h3>
+        <div class="rule-item"><span class="rule-num">1.</span><span>Everyone follows their posted schedule — check the chart, not Mom.</span></div>
+        <div class="rule-item"><span class="rule-num">2.</span><span>Backpacks are packed the NIGHT before — never the morning of.</span></div>
+        <div class="rule-item"><span class="rule-num">3.</span><span>Bedtimes are not negotiable on school nights.</span></div>
+        <div class="rule-item"><span class="rule-num">4.</span><span>The Sunday Family Meeting is non-optional — 15 minutes, everyone attends.</span></div>
+        <div class="rule-item"><span class="rule-num">5.</span><span>If you're running late on a chore, communicate immediately — don't just skip it.</span></div>
+      </div>
+
+      <div class="rule-card">
+        <h3>💛 Kindness & Respect</h3>
+        <div class="rule-item"><span class="rule-num">1.</span><span>Speak kindly to every member of the family — no yelling, name-calling, or put-downs.</span></div>
+        <div class="rule-item"><span class="rule-num">2.</span><span>Karam helps Naya — he is her example. Patience with her always.</span></div>
+        <div class="rule-item"><span class="rule-num">3.</span><span>Say thank you when someone helps you or cooks for you.</span></div>
+        <div class="rule-item"><span class="rule-num">4.</span><span>Knock before entering closed doors.</span></div>
+        <div class="rule-item"><span class="rule-num">5.</span><span>When Mom or Dad says "family time," all activities stop.</span></div>
+      </div>
+
+      <div class="rule-card">
+        <h3>⭐ Consequences & Rewards</h3>
+        <div class="rule-item"><span class="rule-num">✅</span><span>Completed chores = stars / stickers added at evening check-in.</span></div>
+        <div class="rule-item"><span class="rule-num">✅</span><span>Full week of chores = bonus privilege (movie night, extra screen time, special outing).</span></div>
+        <div class="rule-item"><span class="rule-num">❌</span><span>Skipped chore = no screen time that day, chore still must be completed.</span></div>
+        <div class="rule-item"><span class="rule-num">❌</span><span>Disrespectful behavior = loss of privilege for that day, conversation with both parents.</span></div>
+        <div class="rule-item"><span class="rule-num">💬</span><span>Rules can be discussed at Sunday Family Meeting — respectfully and calmly.</span></div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ══════════════════ MONTHLY EVENTS ══════════════════ -->
+  <section id="events" class="section">
+    <h2 class="section-title">Monthly Events</h2>
+    <p class="section-desc">Workouts, practices, and recurring plans — all in one place.</p>
+
+    <div class="cal-nav">
+      <button class="cal-arrow" onclick="changeMonth(-1)">&#8249;</button>
+      <span id="cal-month-label" class="cal-month-label"></span>
+      <button class="cal-arrow" onclick="changeMonth(1)">&#8250;</button>
+    </div>
+
+    <div class="cal-grid" id="cal-grid"></div>
+
+    <div class="event-legend">
+      <div class="legend-card son">
+        <div class="legend-dot"></div>
+        <div>
+          <strong>Karam — Soccer Practice</strong>
+          <p>Tuesdays &amp; Thursdays · 4:00–5:30 pm</p>
+        </div>
+      </div>
+      <div class="legend-card mom">
+        <div class="legend-dot"></div>
+        <div>
+          <strong>Mom — Workout</strong>
+          <p>Mon, Wed, Fri · 6:00–7:00 am</p>
+        </div>
+      </div>
+      <div class="legend-card dad">
+        <div class="legend-dot"></div>
+        <div>
+          <strong>Dad — Workout</strong>
+          <p>Mon, Wed, Sat · 7:00–8:00 am</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function showDay(id, btn) {
+    document.querySelectorAll('.timeline').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).style.display = 'block';
+    btn.classList.add('active');
+  }
+
+  // Grocery checkboxes
+  document.querySelectorAll('.grocery-item input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      this.closest('.grocery-item').classList.toggle('checked', this.checked);
+    });
+  });
+
+  // Monthly Events Calendar
+  const RECURRING_EVENTS = [
+    { label: 'Soccer', who: 'son',  days: [2, 4] },   // Tue, Thu
+    { label: 'Workout', who: 'mom', days: [1, 3, 5] }, // Mon, Wed, Fri
+    { label: 'Workout', who: 'dad', days: [1, 3, 6] }, // Mon, Wed, Sat
+  ];
+
+  let calYear, calMonth;
+
+  function initCalendar() {
+    const now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+    renderCalendar();
+  }
+
+  function changeMonth(delta) {
+    calMonth += delta;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    const monthNames = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+    document.getElementById('cal-month-label').textContent = `${monthNames[calMonth]} ${calYear}`;
+
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+      const h = document.createElement('div');
+      h.className = 'cal-header';
+      h.textContent = d;
+      grid.appendChild(h);
+    });
+
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const today = new Date();
+
+    for (let i = 0; i < firstDay; i++) {
+      const blank = document.createElement('div');
+      blank.className = 'cal-cell empty';
+      grid.appendChild(blank);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell';
+      const dow = (firstDay + d - 1) % 7;
+
+      if (d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear()) {
+        cell.classList.add('today');
+      }
+
+      const num = document.createElement('span');
+      num.className = 'cal-day-num';
+      num.textContent = d;
+      cell.appendChild(num);
+
+      RECURRING_EVENTS.forEach(evt => {
+        if (evt.days.includes(dow)) {
+          const chip = document.createElement('div');
+          chip.className = `cal-chip ${evt.who}`;
+          chip.textContent = evt.label;
+          cell.appendChild(chip);
+        }
+      });
+
+      grid.appendChild(cell);
+    }
+  }
+
+  initCalendar();
+</script>
+
+</body>
+</html>
