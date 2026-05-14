@@ -1,3 +1,50 @@
+  const STORED_HASH = '071c00fa66449df33ffca0f3b71da9f9375eaf8feef471f348c9bac19e6f4914';
+  const AUTH_KEY = 'hm_authed';
+
+  async function sha256(str) {
+    const bytes = new TextEncoder().encode(str);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest))
+      .map(x => x.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  async function checkPassword() {
+    const overlay = document.getElementById('auth-overlay');
+    const card = document.getElementById('auth-card');
+    const input = document.getElementById('auth-input');
+    const error = document.getElementById('auth-error');
+    if (!overlay || !card || !input || !error) return;
+
+    error.textContent = '';
+    const hash = await sha256(input.value);
+
+    if (hash === STORED_HASH) {
+      sessionStorage.setItem(AUTH_KEY, '1');
+      overlay.classList.add('fade-out');
+      overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+      return;
+    }
+
+    input.value = '';
+    input.focus();
+    error.textContent = 'Incorrect password';
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+  }
+
+  window.checkPassword = checkPassword;
+
+  const authOverlay = document.getElementById('auth-overlay');
+  if (sessionStorage.getItem(AUTH_KEY) === '1') {
+    authOverlay?.remove();
+  } else {
+    document.getElementById('auth-input')?.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter') checkPassword();
+    });
+  }
+
   function showSection(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));

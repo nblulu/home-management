@@ -9,6 +9,20 @@
 </head>
 <body>
 
+<div id="auth-overlay">
+  <div id="auth-card">
+    <div id="auth-lock" aria-hidden="true">🔒</div>
+    <h2 id="auth-title">Home Sweet Home</h2>
+    <p id="auth-subtitle">Enter your family password to continue</p>
+    <div id="auth-input-wrap">
+      <input type="password" id="auth-input" placeholder="Password"
+             autocomplete="current-password" autofocus />
+    </div>
+    <button id="auth-btn" type="button" onclick="checkPassword()">Unlock</button>
+    <p id="auth-error" aria-live="polite"></p>
+  </div>
+</div>
+
 <header>
   <h1>🏡 Home Sweet Home</h1>
   <p class="subtitle">Family Command Center</p>
