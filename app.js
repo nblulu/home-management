@@ -74,6 +74,7 @@
       family: '#7A9E7E', school: '#C4704A',
       health: '#C4849A', work: '#7A9BB5', personal: '#D4A853'
     };
+    const PERSON_COLORS = { mom: '#C4849A', dad: '#7A9BB5', son: '#C4704A', daughter: '#D4A853', family: '#7A9E7E' };
     const MONTHS = ['January','February','March','April','May','June',
                     'July','August','September','October','November','December'];
     const DAYS_S = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -93,6 +94,99 @@
       update(id, patch) { this._save(this.all().map(e => e.id === id ? { ...e, ...patch } : e)); },
       remove(id)        { this._save(this.all().filter(e => e.id !== id)); },
     };
+
+    // ── SubscriptionStore ─────────────────────────────────────────────────────
+    const SubStore = {
+      KEY: 'hsh_cal_subs',
+      all()  { try { return JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch { return []; } },
+      _save(arr) { localStorage.setItem(this.KEY, JSON.stringify(arr)); },
+      add(sub) {
+        sub.id = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+        sub.lastSync = null; sub.error = null;
+        const arr = this.all(); arr.push(sub); this._save(arr); return sub;
+      },
+      remove(id) {
+        this._save(this.all().filter(s => s.id !== id));
+        Store._save(Store.all().filter(e => !e._source || e._source.calendarId !== id));
+      },
+      updateSync(id, ts, err) {
+        this._save(this.all().map(s => s.id === id ? { ...s, lastSync: ts, error: err || null } : s));
+      },
+    };
+
+    // ── ICS Parser ────────────────────────────────────────────────────────────
+    function parseICSDateTime(v) {
+      const d = v.replace('Z', '');
+      return `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}T${d.slice(9,11)}:${d.slice(11,13)}`;
+    }
+
+    function parseRRULE(r) {
+      if (!r) return { type: 'none', days: [], until: null };
+      const p = {};
+      r.split(';').forEach(s => { const [k, v] = s.split('='); if (k && v !== undefined) p[k] = v; });
+      const MAP = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+      const freq = (p.FREQ || '').toUpperCase();
+      const type = freq === 'DAILY' ? 'daily' : freq === 'WEEKLY' ? 'weekly' : freq === 'MONTHLY' ? 'monthly' : 'none';
+      const days = p.BYDAY ? p.BYDAY.split(',').map(d => MAP[d.replace(/[+-\d]/g, '')]).filter(d => d !== undefined) : [];
+      let until = null;
+      if (p.UNTIL) { const u = p.UNTIL.replace(/[TZ]/g, '').slice(0, 8); until = `${u.slice(0,4)}-${u.slice(4,6)}-${u.slice(6,8)}`; }
+      return { type, days, until };
+    }
+
+    function parseICS(text) {
+      const lines = text.replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
+      const events = [];
+      let cur = null;
+
+      for (const raw of lines) {
+        if (raw === 'BEGIN:VEVENT') { cur = {}; continue; }
+        if (raw === 'END:VEVENT')   { if (cur && cur.uid) events.push(cur); cur = null; continue; }
+        if (!cur) continue;
+
+        const ci = raw.indexOf(':');
+        if (ci === -1) continue;
+        const propFull = raw.slice(0, ci), val = raw.slice(ci + 1);
+        const si = propFull.indexOf(';');
+        const prop   = (si !== -1 ? propFull.slice(0, si) : propFull).toUpperCase();
+        const params = si !== -1 ? propFull.slice(si + 1) : '';
+
+        if      (prop === 'UID')         { cur.uid  = val; }
+        else if (prop === 'SUMMARY')     { cur.title = val.replace(/\\n/g, '\n').replace(/\\([,;\\])/g, '$1'); }
+        else if (prop === 'DESCRIPTION') { cur.desc  = val.replace(/\\n/g, '\n').replace(/\\([,;\\])/g, '$1'); }
+        else if (prop === 'DTSTART') {
+          const isDate = params.includes('VALUE=DATE') || val.length === 8;
+          cur.allDay = isDate;
+          cur.start  = isDate ? `${val.slice(0,4)}-${val.slice(4,6)}-${val.slice(6,8)}` : parseICSDateTime(val);
+        }
+        else if (prop === 'DTEND') {
+          const isDate = params.includes('VALUE=DATE') || val.length === 8;
+          if (isDate) {
+            const d = new Date(`${val.slice(0,4)}-${val.slice(4,6)}-${val.slice(6,8)}T00:00`);
+            d.setDate(d.getDate() - 1);
+            cur.end = d.toISOString().slice(0, 10);
+          } else {
+            cur.end = parseICSDateTime(val);
+          }
+        }
+        else if (prop === 'RRULE') { cur.rrule = val; }
+      }
+
+      return events.map(e => {
+        const start = e.start || '';
+        let end = e.end || e.start || '';
+        if (end && start && end < start) end = start;
+        return {
+          title: e.title || '(No title)',
+          description: e.desc || '',
+          start, end,
+          allDay: !!e.allDay,
+          category: 'family',
+          color: '#7A9E7E',
+          recurring: parseRRULE(e.rrule || ''),
+          uid: e.uid,
+        };
+      });
+    }
 
     // ── Seed data ────────────────────────────────────────────────────────────
     function seed() {
@@ -680,6 +774,123 @@
       }
     };
 
+    // ── iCal Sync ─────────────────────────────────────────────────────────────
+    async function syncSubscription(sub) {
+      const url = sub.url.replace(/^webcal:/i, 'https:');
+      let text;
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        text = await resp.text();
+      } catch (err) {
+        SubStore.updateSync(sub.id, new Date().toISOString(), err.message || 'fetch-error');
+        SubModal.render();
+        return;
+      }
+      const color  = PERSON_COLORS[sub.person] || '#7A9E7E';
+      const others = Store.all().filter(e => !e._source || e._source.calendarId !== sub.id);
+      const fresh  = parseICS(text).map(e => ({
+        ...e, color,
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2),
+        _source: { calendarId: sub.id, uid: e.uid },
+      }));
+      Store._save([...others, ...fresh]);
+      SubStore.updateSync(sub.id, new Date().toISOString(), null);
+      SubModal.render();
+      render();
+    }
+
+    async function syncAll() {
+      const now = Date.now();
+      for (const sub of SubStore.all()) {
+        if (!sub.lastSync || now - new Date(sub.lastSync).getTime() > 86400000) {
+          await syncSubscription(sub);
+        }
+      }
+    }
+
+    // ── Subscription Modal ─────────────────────────────────────────────────────
+    const SubModal = {
+      el: null,
+      init() {
+        this.el = document.getElementById('sub-modal');
+        if (!this.el) return;
+        document.getElementById('sub-modal-close').addEventListener('click',  () => this.close());
+        document.getElementById('sub-modal-done').addEventListener('click',   () => this.close());
+        document.getElementById('sub-add-btn').addEventListener('click',      () => this.addSub());
+        document.getElementById('sub-sync-all-btn').addEventListener('click', () => this.doSyncAll());
+        this.el.addEventListener('click', ev => { if (ev.target === this.el) this.close(); });
+      },
+      open()  { if (!this.el) return; this.render(); this.el.classList.add('open'); },
+      close() { if (this.el) this.el.classList.remove('open'); },
+      render() {
+        const list = document.getElementById('sub-list');
+        if (!list) return;
+        const subs = SubStore.all();
+        if (!subs.length) {
+          list.innerHTML = '<div class="sub-empty">No calendars added yet. Add one below.</div>';
+          return;
+        }
+        list.innerHTML = '';
+        subs.forEach(sub => {
+          const item = document.createElement('div'); item.className = 'sub-item';
+          const dot  = document.createElement('div'); dot.className  = 'sub-item-dot';
+          dot.style.background = PERSON_COLORS[sub.person] || '#7A9E7E';
+
+          const info = document.createElement('div'); info.className = 'sub-item-info';
+          const age   = sub.lastSync ? this._relTime(new Date(sub.lastSync)) : 'Never synced';
+          const stCls = sub.error ? 'sync-err' : sub.lastSync ? 'sync-ok' : '';
+          const stIco = sub.error ? '⚠' : sub.lastSync ? '✓' : '–';
+          const errNote = sub.error ? `<span class="sub-err-note" title="${sub.error}"> · CORS?</span>` : '';
+          info.innerHTML = `<div class="sub-item-name">${sub.name}</div>
+            <div class="sub-item-meta"><span class="sub-sync-status ${stCls}">${stIco} ${age}</span>${errNote}</div>`;
+
+          const actions = document.createElement('div'); actions.className = 'sub-item-actions';
+
+          const syncBtn = document.createElement('button');
+          syncBtn.className = 'btn btn-secondary sub-action-btn'; syncBtn.title = 'Sync now'; syncBtn.textContent = '↻';
+          syncBtn.addEventListener('click', async () => {
+            syncBtn.disabled = true; syncBtn.textContent = '…';
+            await syncSubscription(sub);
+            syncBtn.disabled = false; syncBtn.textContent = '↻';
+          });
+
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'btn btn-danger sub-action-btn'; removeBtn.title = 'Remove'; removeBtn.textContent = '×';
+          removeBtn.addEventListener('click', () => { SubStore.remove(sub.id); render(); this.render(); });
+
+          actions.appendChild(syncBtn); actions.appendChild(removeBtn);
+          item.appendChild(dot); item.appendChild(info); item.appendChild(actions);
+          list.appendChild(item);
+        });
+      },
+      async addSub() {
+        const n = document.getElementById('sub-name-input');
+        const u = document.getElementById('sub-url-input');
+        const p = document.getElementById('sub-person-select');
+        if (!n.value.trim()) { n.focus(); return; }
+        if (!u.value.trim()) { u.focus(); return; }
+        const sub = SubStore.add({ name: n.value.trim(), url: u.value.trim(), person: p.value });
+        n.value = ''; u.value = '';
+        this.render();
+        await syncSubscription(sub);
+      },
+      async doSyncAll() {
+        const btn = document.getElementById('sub-sync-all-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Syncing…'; }
+        for (const sub of SubStore.all()) await syncSubscription(sub);
+        if (btn) { btn.disabled = false; btn.textContent = 'Sync All'; }
+      },
+      _relTime(date) {
+        const m = Math.floor((Date.now() - date) / 60000);
+        if (m < 1)  return 'Just now';
+        if (m < 60) return `${m}m ago`;
+        const h = Math.floor(m / 60);
+        if (h < 24) return `${h}h ago`;
+        return `${Math.floor(h / 24)}d ago`;
+      },
+    };
+
     // ── Theme ──────────────────────────────────────────────────────────────────
     const Theme = {
       KEY: 'hsh_theme',
@@ -731,10 +942,12 @@
       Theme.init();
       Modal.init();
       Confirm.init();
+      SubModal.init();
 
       document.getElementById('cal-prev-btn').addEventListener('click', () => navigate(-1));
       document.getElementById('cal-next-btn').addEventListener('click', () => navigate(1));
       document.getElementById('cal-today-btn').addEventListener('click', () => { S.current = new Date(); render(); });
+      document.getElementById('cal-subs-btn').addEventListener('click', () => SubModal.open());
 
       document.querySelectorAll('.cal-view-btn').forEach(btn =>
         btn.addEventListener('click', () => setView(btn.dataset.view))
@@ -760,7 +973,7 @@
         if (ev.key === 'ArrowLeft')  navigate(-1);
         if (ev.key === 'ArrowRight') navigate(1);
         if (ev.key === 't' || ev.key === 'T') { S.current = new Date(); render(); }
-        if (ev.key === 'Escape') { Modal.close(); Confirm.close(); }
+        if (ev.key === 'Escape') { Modal.close(); Confirm.close(); SubModal.close(); }
         if (ev.key === 'm') setView('month');
         if (ev.key === 'w') setView('week');
         if (ev.key === 'd') setView('day');
@@ -768,6 +981,7 @@
       });
 
       render();
+      syncAll();
     }
 
     // Lazy init: run when section becomes active, or immediately if already active
