@@ -527,6 +527,7 @@
             <button class="cal-view-btn" data-view="day">Day</button>
             <button class="cal-view-btn" data-view="agenda">Agenda</button>
           </div>
+          <button class="cal-theme-btn" id="cal-subs-btn" title="Manage Calendars" aria-label="Manage Calendars">📅</button>
           <button class="cal-theme-btn" id="cal-theme-btn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
         </div>
       </div>
@@ -647,6 +648,50 @@
         <button class="btn btn-secondary" id="confirm-cancel-btn">Cancel</button>
         <button class="btn btn-danger" id="confirm-delete-btn">Delete</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Calendar Subscriptions Modal ══ -->
+<div class="modal-overlay" id="sub-modal" role="dialog" aria-modal="true" aria-labelledby="sub-modal-heading">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h3 id="sub-modal-heading">Manage Calendars</h3>
+      <button class="modal-close" id="sub-modal-close" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="sub-list"></div>
+      <div class="sub-divider"></div>
+      <div class="sub-add-form">
+        <div class="form-label" style="margin-bottom:0.5rem">Add Calendar</div>
+        <div class="form-group" style="margin-bottom:0.6rem">
+          <input class="form-input" id="sub-name-input" placeholder="Calendar name (e.g. Mom's Calendar)" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:0.6rem">
+          <input class="form-input" id="sub-url-input" placeholder="webcal:// or https:// .ics URL" autocomplete="off">
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-group">
+            <label class="form-label">Person</label>
+            <select class="form-select" id="sub-person-select">
+              <option value="mom">Mom</option>
+              <option value="dad">Dad</option>
+              <option value="son">Karam</option>
+              <option value="daughter">Naya</option>
+              <option value="family">Family</option>
+            </select>
+          </div>
+          <div class="form-group" style="justify-content:flex-end;align-items:flex-end">
+            <button class="btn btn-primary" id="sub-add-btn">Add &amp; Sync</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <button class="btn btn-secondary" id="sub-sync-all-btn">Sync All</button>
+      </div>
+      <button class="btn btn-secondary" id="sub-modal-done">Done</button>
     </div>
   </div>
 </div>

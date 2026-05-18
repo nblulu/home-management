@@ -1015,6 +1015,33 @@
   }
   .confirm-btns { display: flex; gap: 0.65rem; justify-content: center; }
 
+  /* ── Calendar Subscriptions ── */
+  .sub-empty {
+    font-size: 0.82rem; color: var(--cw-muted);
+    text-align: center; padding: 0.75rem 0;
+  }
+  .sub-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--cw-border, var(--border));
+  }
+  .sub-item:last-child { border-bottom: none; }
+  .sub-item-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .sub-item-info { flex: 1; min-width: 0; }
+  .sub-item-name {
+    font-size: 0.88rem; font-weight: 600;
+    color: var(--cw-text, var(--charcoal));
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sub-item-meta { font-size: 0.72rem; margin-top: 2px; }
+  .sub-sync-status { color: var(--cw-muted); }
+  .sub-sync-status.sync-ok  { color: #4E8A55; }
+  .sub-sync-status.sync-err { color: #C8502A; }
+  .sub-err-note { color: #C8502A; font-weight: 600; cursor: help; }
+  .sub-item-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+  .sub-action-btn { padding: 4px 9px; font-size: 0.85rem; }
+  .sub-divider { height: 1px; background: var(--cw-border, var(--border)); margin: 0.85rem 0; }
+
   @keyframes mo-fade  { from { opacity: 0; } to { opacity: 1; } }
   @keyframes mo-slide {
     from { opacity: 0; transform: translateY(20px) scale(0.97); }
